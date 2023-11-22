@@ -18,20 +18,24 @@ supervisor.runtime.autoreload = False
 # if(board.board_id == 'waveshare_rp2040_zero'):
 #     led = pwmio.PWMOut(board.LED, frequency=5000, duty_cycle=0)
 
-
 progStatus = False
 progStatus = getProgrammingStatus()
 print("progStatus", progStatus)
-if(progStatus == False):
-    print("Finding payload")
-    # not in setup mode, inject the payload
-    payload = selectPayload()
-    print("Running ", payload)
-    runScript(payload)
 
-    print("Done")
-else:
-    print("Update your payload")
+# Check if we are in stealth mode
+stealth_mode = digitalio.DigitalInOut(board.GP15)
+stealth_mode.switch_to_input(pull=digitalio.Pull.UP)
+
+# If we are not in stealth mode, it doesnt run code
+if not stealth_mode.value:
+    if(progStatus == False):
+        print("Finding payload")
+        payload = selectPayload()
+        print("Running ", payload)
+        runScript(payload)
+        print("Done")
+    else:
+        print("Update your payload")
 
 led_state = False
 
